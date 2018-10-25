@@ -1,0 +1,169 @@
+swagger: "2.0"
+info:
+  description: >-
+    REST API Foo
+  version: "1"
+  title: "Foo"
+basePath: "/foo/v1"
+tags:
+- name: baz
+  description: "Baz"
+
+schemes:
+- "http"
+paths:
+  /foos:
+    post:
+      tags:
+      - baz
+      summary: "an operation to create a foo"
+      description: >-
+        Registers a new foo
+      operationId: "registerFoo"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: payload
+        in: body
+        description: >-
+          Data for the foo to be registered
+        schema:
+          $ref: "#/definitions/Foo"
+        required: true
+      responses:
+        201:
+          description: Created
+          headers:
+            Location:
+              description: URI of the registered foo
+              type: string
+              format: uri
+            ETag:
+              description: >-
+                Fingerprint of the created foo
+              type: string
+          schema:
+            $ref: "#/definitions/Foo"
+        400:
+          $ref: "#/responses/400"
+        401:
+          $ref: "#/responses/401"
+        403:
+          $ref: "#/responses/403"
+        500:
+          $ref: "#/responses/500"
+
+definitions:
+  Foo:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "Test User"
+        description: "A name of the user"
+    required:
+    - name
+  Error:
+    type: object
+    properties:
+      code:
+        type: string
+        description: "Error code"
+        example: RESOURCE_NOT_FOUND
+      message:
+        type: string
+        description: "Error message"
+        example: "Requested resource not found"
+      target:
+        type: string
+        description: "Related resource"
+        example: "/products/42"
+      details:
+        type: object
+        properties:
+          code:
+            type: string
+            description: "Detailed error code"
+            example: "MongoDB:2038"
+          message:
+            type: string
+            description: "Detailed error message"
+            example: "MongoDB: no document with ObjectID 42"
+        required:
+        - code
+        - message
+    required:
+    - code
+    - message
+
+responses:
+  204:
+    description: No Content
+  400:
+    description: Bad Request
+    schema:
+      $ref: '#/definitions/Error'
+    examples:
+      application/json:
+        code: MISSING_PARAMETERS
+        message: >-
+          Required parameters missing or incorrect.
+  401:
+    description: Unauthorized
+    headers:
+      WWW_Authenticate:
+        type: string
+    schema:
+      $ref: '#/definitions/Error'
+    examples:
+      application/json:
+        code: UNAUTHORIZED
+        message: >-
+          To access API you have to login
+  403:
+    description: Forbidden
+    schema:
+      $ref: '#/definitions/Error'
+    examples:
+      application/json:
+        code: FORBIDDEN
+        message: >-
+          Insufficient privileges to access API
+  404:
+    description: Not Found
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        code: RESOURCE_NOT_FOUND
+        message: >-
+          Requested resource not found
+  412:
+    description: Precondition Failed
+    schema:
+      $ref: "#/definitions/Error"
+    examples:
+      application/json:
+        code: CONCURRENT_MODIFICATION
+        message: >-
+          The resource was modified in the meanwhile
+  500:
+    description: Internal server error
+    schema:
+      $ref: '#/definitions/Error'
+    examples:
+      application/json:
+        code: INTERNAL_SERVER_ERROR
+        message: >-
+          Internal server error occurred, retry after some time. In case the issue
+          persists contact your system administrator
+  501:
+    description: Not Implemented
+    schema:
+      $ref: '#/definitions/Error'
+    examples:
+      application/json:
+        code: FEATURE_NOT_IMPLEMENTED
+        message: Requested feature is not implemented.
